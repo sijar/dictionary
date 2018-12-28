@@ -1,0 +1,86 @@
+<!-- 
+	============ DICTIONARY ANT BUILD SCRIPT  =============
+	(author: SIJAR AHMED)
+-->
+
+<project name="Dictionary" basedir="." default="+ALL-ALL">
+
+
+	<!-- folder, resources actual location respective to the ant script -->
+	<property name="build.platform" value="${os.name}"/>
+	<property name="src.dir" value="../../src" />
+	<property name="build.dir" value="../../build/dist" />
+	<property name="classes.dir" value="${build.dir}/classes" />
+	<property name="resources.dir" value="${classes.dir}/englishdictionary/resources" />
+	<property name="jar.dir" value="${build.dir}/jar" />
+	<property name="author" value="Sijar Ahmed" />
+	<!--property file="build.properties"/ -->
+
+	<!---  ======= Please add the location of all the external library jar =======  -->
+	<!-- WINDOWS -->
+	<property name="junit.jar.location" value="C:\sijar\hpstsd\occp\software\eclipse\plugins\org.junit_4.8.1.v4_8_1_v20100427-1100\junit.jar"/>
+		
+	<!-- LINUX -->
+	<!-- property name="junit.jar.location" value="/home/ecs-lab/.....eclipse\plugins\org.junit_4.8.1.v4_8_1_v20100427-1100\junit.jar"/ -->
+
+	<!-- main class -->
+	<property name="main-class" value="englishdictionary.Dictionary"/>
+
+
+
+
+	<!-- ############################ Targets ######################### -->
+	<!-- clean  -->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<!-- compile  -->
+	<target name="compile">
+		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${resources.dir}"/>
+		<!-- ============= Info ============== -->
+		<echo>Java Version via Ant: ${ant.java.version}</echo>
+		<echo>Java Version System Property: ${java.version}</echo>
+		<echo>Build Platform: ${build.platform}</echo>
+		<echo>Source directory: ${src.dir}</echo>
+		<echo>Build directory: ${build.dir}</echo>
+		<echo>Jar directory: ${jar.dir}</echo>
+
+		<javac srcdir="${src.dir}" destdir="${classes.dir}"  verbose="false">
+			<classpath>
+				<path location="${jar.dir}/${ant.project.name}.jar"/>				
+				<!--- external library -->
+				<path location="${junit.jar.location}" />
+			</classpath>
+		</javac>
+		<!-- ===== copy resources ======= -->
+		<copy file="${src.dir}/englishdictionary/resources/dictionary" todir="${resources.dir}" verbose="true" /> 
+	</target>
+
+	<!-- jar  -->
+	<target name="jar" depends="compile">
+		<mkdir dir="${jar.dir}" />
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}" excludes="jar" compress="true">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}" />
+				<attribute name="Created-By" value="${author}" />
+			</manifest>
+		</jar>
+		<!-- clean up dictionary -->
+		<delete dir="${resources.dir}" />
+	</target>
+
+	<!-- run  -->
+	<target name="+RUN" depends="jar">
+		<java fork="true" classname="${main-class}" failonerror="true">
+			<classpath>
+				<path location="${jar.dir}/${ant.project.name}.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="clean-build" depends="clean,jar" />
+	<target name="+ALL-ALL" depends="clean,+RUN" />
+
+</project>
